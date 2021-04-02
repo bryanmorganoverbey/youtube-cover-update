@@ -28,6 +28,7 @@ const SCOPES = "https://www.googleapis.com/auth/youtube.force-ssl";
       },
       (rejectedReason) => {
         console.log("End of Program: ", rejectedReason);
+        return Promise.reject("Dont run authorization.");
       }
     )
     .then(
@@ -35,12 +36,18 @@ const SCOPES = "https://www.googleapis.com/auth/youtube.force-ssl";
         return authorize();
       },
       (rejectedReason) => {
-        throw Error("Failed to fetch photo: ", rejectedReason);
+        console.log(rejectedReason);
+        return Promise.reject("Dont upload Photo");
       }
     )
-    .then((auth) => {
-      uploadPhoto(auth);
-    })
+    .then(
+      (auth) => {
+        uploadPhoto(auth);
+      },
+      (rejectedReason) => {
+        console.log(rejectedReason);
+      }
+    )
     .catch((err) => {
       console.log(err);
     });
@@ -60,6 +67,7 @@ function checkForNewCommenters(mostRecentCommenter) {
         console.log("mostRecentCommenter: ", mostRecentCommenter);
         console.log("storedCommenter: ", storedCommenter);
         if (mostRecentCommenter !== storedCommenter) {
+          saveCommenter(mostRecentCommenter);
           resolve(mostRecentCommenter);
         } else {
           reject("No new comments.");
